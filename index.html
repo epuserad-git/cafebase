@@ -109,6 +109,10 @@ td select{width:auto;height:30px;padding:0 8px;font-size:13px}
 .empty.ok{color:var(--ok)}
 .note{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:14px 0 0;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn)}
 .note svg{margin-top:2px}
+.gate{max-width:520px;margin:40px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 24px}
+.gate h2{margin:6px 0 0;font-size:17px}
+.gate p{margin:0 0 10px;color:var(--mute);font-size:14px;line-height:1.55}
+.gate>svg{color:var(--accent)}
 .scroll{flex:1;max-height:300px;overflow:auto}
 
 /* toolbar */
@@ -249,7 +253,6 @@ const STATUS_ON = ['Diterima', 'Selesai', 'Batal'];
 const POIN_PER = 10000; // 1 poin tiap Rp10.000
 
 $('.logo').innerHTML = ic('coffee', 20);
-$('.side-foot').innerHTML = ic('hdd', 14) + '<span>Data tersimpan di browser ini. Backup rutin dari Dashboard.</span>';
 $('#nav').innerHTML = NAV.map(([t, i, l]) => `<button data-t="${t}"${t === 'laporan' ? ' class="on"' : ''}>${ic(i, 18)}<span>${l}</span></button>`).join('');
 $('#hdate').innerHTML = ic('cal', 14) + new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 $('#nav').addEventListener('click', e => {
@@ -265,7 +268,13 @@ const stokNow = id => db.gerak.filter(g => g.itemId === id).reduce((s, g) => s +
 const inMonth = r => r.tgl.slice(0, 7) === bulan;
 const monthPicker = () => `<div><label>Bulan</label><input type="month" value="${bulan}" onchange="bulan=this.value||bulan;render()"></div>`;
 
+function vGate() {
+  return `<div class="card gate">${ic('cloudoff', 30)}<h2>Hubungkan ke cloud dulu</h2>
+    <p>Semua data Kopi Catat disimpan di Supabase, jadi aman dan bisa dibuka dari perangkat mana pun. Isi koneksi di Pengaturan. Data lama di browser ini ikut dipindahkan otomatis.</p>
+    <button class="btn" onclick="goTab('setting')">${ic('gear', 16)}Buka Pengaturan</button></div>`;
+}
 function render() {
+  if (!sbOn() && tab !== 'setting') { $('#app').innerHTML = vGate(); return; }
   $('#app').innerHTML = { laporan: vLaporan, jual: vJual, online: vOnline, menu: vMenu, stok: vStok, member: vMember, absen: vAbsen, keluar: vKeluar, tutup: vTutup, setting: vSetting }[tab]();
 }
 
@@ -736,8 +745,10 @@ function goTab(t) { const b = document.querySelector(`#nav button[data-t="${t}"]
 
 function setSb(st, msg) {
   sbState = st; sbErr = msg || '';
+  const ft = $('.side-foot');
+  if (ft) ft.innerHTML = (st === 'off' ? ic('cloudoff', 14) : ic('cloudok', 14)) + '<span>' + (st === 'off' ? 'Belum tersambung ke cloud. Hubungkan di Pengaturan.' : st === 'err' ? 'Offline. Perubahan disimpan di perangkat dan dikirim saat tersambung.' : 'Data tersimpan di cloud (Supabase).') + '</span>';
   const c = $('#sbchip');
-  if (c) { c.innerHTML = { off: ic('hdd', 14) + 'Lokal', ok: ic('cloudok', 14) + 'Tersinkron', sync: ic('sync', 14) + 'Sinkron…', err: ic('cloudoff', 14) + 'Offline' }[st]; c.className = 'chip ' + st; }
+  if (c) { c.innerHTML = { off: ic('cloudoff', 14) + 'Belum tersambung', ok: ic('cloudok', 14) + 'Tersinkron', sync: ic('sync', 14) + 'Sinkron…', err: ic('cloudoff', 14) + 'Offline, menunggu sinkron' }[st]; c.className = 'chip ' + st; }
   const ae = document.activeElement;
   if (tab === 'setting' && !(ae && ae.matches && ae.matches('input'))) render();
 }
@@ -827,11 +838,12 @@ async function sbRefresh() {
     db = remote; snap = rmap; localStorage.setItem(KEY, JSON.stringify(db)); render();
   } catch (e) { }
 }
+setInterval(() => { if (!document.hidden) sbRefresh(); }, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sbRefresh(); });
 window.addEventListener('online', () => { if (sbOn() && localStorage.getItem(DIRTY)) sbSync(); });
 
 function vSetting() {
-  const st = { off: 'Belum tersambung. Data hanya tersimpan di browser ini.', ok: 'Tersambung dan tersinkron.', sync: 'Menyinkronkan…', err: 'Gagal: ' + sbErr }[sbState];
+  const st = { off: 'Belum tersambung. Hubungkan database untuk mulai memakai aplikasi.', ok: 'Tersambung dan tersinkron.', sync: 'Menyinkronkan…', err: 'Gagal: ' + sbErr }[sbState];
   return `
   <div class="split top"><div class="card"><h2>Koneksi Supabase</h2>
     <p style="margin:0 0 12px;font-size:14px" class="${sbState === 'ok' ? 'ok' : sbState === 'err' ? 'bad' : ''}"><b>${esc(st)}</b></p>
@@ -861,7 +873,7 @@ async function saveSb(e) {
   toast(sbState === 'ok' ? 'Tersambung ke Supabase' : 'Gagal tersambung');
 }
 function disconnectSb() {
-  if (!confirm('Putuskan Supabase? Data di browser ini tetap ada, hanya berhenti sinkron.')) return;
+  if (!confirm('Putuskan Supabase? Aplikasi tidak bisa dipakai sampai tersambung lagi. Data di cloud tetap aman.')) return;
   sbCfg = { url: '', key: '' }; localStorage.removeItem(SBKEY); localStorage.removeItem(DIRTY); snap = {};
   setSb('off'); render();
 }
