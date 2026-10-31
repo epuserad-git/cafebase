@@ -2,7 +2,7 @@
 
 Aplikasi pencatatan coffee shop, satu file HTML tanpa framework.
 
-**Modul:** Dashboard, Penjualan, Order Online, Menu & Resep, Stok, Member, Absensi, Pengeluaran.
+**Modul:** Dashboard, Penjualan, Order Online, Menu & Resep (dengan HPP dan laba per porsi), Stok (dengan harga beli), Member, Absensi, Pengeluaran, Tutup Kasir harian.
 
 ## Menjalankan
 

@@ -98,6 +98,7 @@ ol.steps{padding-left:20px;margin:0;font-size:14px;line-height:1.7}
       <button data-t="member"><i>⭐</i><span>Member</span></button>
       <button data-t="absen"><i>🕒</i><span>Absensi</span></button>
       <button data-t="keluar"><i>💸</i><span>Pengeluaran</span></button>
+      <button data-t="tutup"><i>🔒</i><span>Tutup Kasir</span></button>
       <button data-t="setting"><i>⚙️</i><span>Pengaturan</span></button>
     </nav>
     <div class="side-foot">Data tersimpan di browser ini. Backup rutin dari Dashboard.</div>
@@ -111,7 +112,7 @@ ol.steps{padding-left:20px;margin:0;font-size:14px;line-height:1.7}
 
 <script>
 const KEY = 'kopicatat_v1';
-const empty = () => ({ stok: [], gerak: [], jual: [], keluar: [], menu: [], member: [], karyawan: [], absen: [], online: [] });
+const empty = () => ({ stok: [], gerak: [], jual: [], keluar: [], menu: [], member: [], karyawan: [], absen: [], online: [], tutup: [] });
 let db;
 try { db = Object.assign(empty(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { db = empty(); }
 const save = () => { localStorage.setItem(KEY, JSON.stringify(db)); queueSync(); };
@@ -148,7 +149,7 @@ const inMonth = r => r.tgl.slice(0, 7) === bulan;
 const monthPicker = () => `<div><label>Bulan</label><input type="month" value="${bulan}" onchange="bulan=this.value||bulan;render()"></div>`;
 
 function render() {
-  $('#app').innerHTML = { laporan: vLaporan, jual: vJual, online: vOnline, menu: vMenu, stok: vStok, member: vMember, absen: vAbsen, keluar: vKeluar, setting: vSetting }[tab]();
+  $('#app').innerHTML = { laporan: vLaporan, jual: vJual, online: vOnline, menu: vMenu, stok: vStok, member: vMember, absen: vAbsen, keluar: vKeluar, tutup: vTutup, setting: vSetting }[tab]();
 }
 
 /* ---------- DASHBOARD ---------- */
@@ -173,6 +174,12 @@ function vLaporan() {
   const byPay = {}; j.forEach(x => byPay[x.bayar] = (byPay[x.bayar] || 0) + x.qty * x.harga);
   if (omzetOn) byPay['Online'] = (byPay['Online'] || 0) + omzetOn;
   const low = db.stok.filter(s => stokNow(s.id) <= s.min);
+  const byLaba = {};
+  [...j, ...on].forEach(x => { const m = byLaba[x.menu.toLowerCase()] ||= { nama: x.menu, total: 0, hpp: 0 }; m.total += x.qty * x.harga; m.hpp += hppOf(x) * x.qty; });
+  const allLaba = Object.values(byLaba).map(m => ({ ...m, laba: m.total - m.hpp }));
+  const labaMenu = allLaba.slice().sort((a, b) => b.laba - a.laba).slice(0, 5);
+  const hppTotal = allLaba.reduce((s, m) => s + m.hpp, 0), labaTotalMenu = allLaba.reduce((s, m) => s + m.laba, 0);
+  const tanpaHpp = allLaba.some(m => m.hpp === 0);
   const hariIni = db.jual.filter(x => x.tgl === today()).reduce((s, x) => s + x.qty * x.harga, 0)
     + db.online.filter(o => o.tgl === today() && o.status === 'Selesai').reduce((s, o) => s + o.qty * o.harga, 0);
 
@@ -197,6 +204,7 @@ function vLaporan() {
     <div class="stat"><div class="ic">🧾</div><div><span>Pengeluaran</span><b>${rp(out)}</b><em>termasuk potongan platform</em></div></div>
     <div class="stat"><div class="ic">${laba >= 0 ? '📈' : '📉'}</div><div><span>Laba kasar</span><b class="${laba >= 0 ? 'ok' : 'bad'}">${rp(laba)}</b><em>${margin}</em></div></div>
     <div class="stat"><div class="ic">☀️</div><div><span>Omzet hari ini</span><b>${rp(hariIni)}</b><em>${fmtDate(today())}</em></div></div>
+    <div class="stat"><div class="ic">🧮</div><div><span>Laba menu (omzet − HPP)</span><b class="${labaTotalMenu >= 0 ? 'ok' : 'bad'}">${rp(labaTotalMenu)}</b><em>HPP ${rp(hppTotal)}</em></div></div>
   </div>
   <div class="card"><h2>Omzet vs pengeluaran harian</h2>
     <div class="legend"><span><i style="background:var(--brand)"></i>Omzet</span><span><i style="background:#e0c3a6"></i>Pengeluaran</span></div>
@@ -206,6 +214,7 @@ function vLaporan() {
     <div class="card"><h2>Menu terlaris</h2>${top.length ? hbars(top.map(m => [`${m.nama} · ${num(m.qty)}x`, m.total]), rp) : '<div class="empty">Belum ada penjualan</div>'}</div>
     <div class="card"><h2>Metode pembayaran</h2>${Object.keys(byPay).length ? hbars(Object.entries(byPay), rp) : '<div class="empty">Kosong</div>'}</div>
     <div class="card"><h2>Pengeluaran per kategori</h2>${Object.keys(byCat).length ? hbars(Object.entries(byCat), rp) : '<div class="empty">Kosong</div>'}</div>
+    <div class="card"><h2>Laba per menu (estimasi)</h2>${labaMenu.length ? hbars(labaMenu.map(m => [`${m.nama} · margin ${m.total ? Math.round(m.laba / m.total * 100) : 0}%`, m.laba]), rp) + (tanpaHpp ? '<p style="font-size:12px;color:var(--mute);margin:8px 0 0">Menu tanpa resep atau harga bahan dihitung HPP Rp 0.</p>' : '') : '<div class="empty">Belum ada penjualan</div>'}</div>
     <div class="card"><h2>⚠️ Stok menipis</h2>${low.length ? `<table>${low.map(s => `<tr><td>${esc(s.nama)}</td><td class="r bad">${num(stokNow(s.id))} ${esc(s.satuan)} <span style="color:var(--mute)">(min ${num(s.min)})</span></td></tr>`).join('')}</table>` : '<div class="empty">Semua stok aman</div>'}</div>
   </div>`;
 }
@@ -234,7 +243,7 @@ function vJual() {
 function addJual(e) {
   e.preventDefault(); const f = new FormData(e.target);
   const id = uid(), menu = f.get('menu').trim(), qty = +f.get('qty'), tgl = f.get('tgl');
-  db.jual.push({ id, tgl, menu, qty, harga: +f.get('harga'), bayar: f.get('bayar'), memberId: f.get('memberId') || '' });
+  db.jual.push({ id, tgl, menu, qty, harga: +f.get('harga'), bayar: f.get('bayar'), memberId: f.get('memberId') || '', hpp: hppMenu(menu) || undefined });
   applyResep(menu, qty, tgl, id);
   bulan = f.get('tgl').slice(0, 7); save(); render(); toast('Penjualan tersimpan');
 }
@@ -250,6 +259,7 @@ function vStok() {
       <div><label>Nama bahan</label><input name="nama" placeholder="Biji kopi" required></div>
       <div><label>Satuan</label><input name="satuan" placeholder="kg / liter / pcs" required></div>
       <div><label>Batas minimum</label><input type="number" name="min" min="0" step="any" value="0"></div>
+      <div><label>Harga beli / satuan (Rp)</label><input type="number" name="harga" min="0" step="any" placeholder="mis. 180000"></div>
       <div class="row-end"><button class="btn" style="width:100%">Tambah</button></div>
     </div></form>
   </div>
@@ -263,14 +273,14 @@ function vStok() {
       <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
     </div></form>` : '<div class="empty">Tambah bahan dulu</div>'}
   </div>
-  <div class="card wrap"><h2>Stok saat ini</h2>${db.stok.length ? `<table><tr><th>Bahan</th><th class="r">Stok</th><th class="r">Min</th><th>Status</th><th></th></tr>
-  ${db.stok.map(s => { const n = stokNow(s.id), lo = n <= s.min; return `<tr><td>${esc(s.nama)}</td><td class="r">${num(n)} ${esc(s.satuan)}</td><td class="r">${num(s.min)}</td><td><span class="tag ${lo ? 'low' : 'good'}">${lo ? 'Menipis' : 'Aman'}</span></td><td><button class="del" onclick="del('stok','${s.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada bahan</div>'}</div>
+  <div class="card wrap"><h2>Stok saat ini</h2>${db.stok.length ? `<table><tr><th>Bahan</th><th class="r">Stok</th><th class="r">Min</th><th class="r">Harga beli/sat</th><th>Status</th><th></th></tr>
+  ${db.stok.map(s => { const n = stokNow(s.id), lo = n <= s.min; return `<tr><td>${esc(s.nama)}</td><td class="r">${num(n)} ${esc(s.satuan)}</td><td class="r">${num(s.min)}</td><td class="r">${s.harga ? rp(s.harga) : '-'} <button class="del" style="color:var(--brand)" onclick="setHarga('${s.id}')">Ubah</button></td><td><span class="tag ${lo ? 'low' : 'good'}">${lo ? 'Menipis' : 'Aman'}</span></td><td><button class="del" onclick="del('stok','${s.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada bahan</div>'}</div>
   <div class="card wrap"><h2>Riwayat terakhir</h2>${riw.length ? `<table><tr><th>Tgl</th><th>Bahan</th><th>Jenis</th><th class="r">Jumlah</th><th>Catatan</th><th></th></tr>
   ${riw.map(g => `<tr><td>${fmtDate(g.tgl)}</td><td>${esc(nm(g.itemId))}</td><td class="${g.tipe === 'masuk' ? 'ok' : 'bad'}">${g.tipe === 'masuk' ? 'Masuk' : 'Keluar'}</td><td class="r">${num(g.qty)} ${esc(sat(g.itemId))}</td><td>${esc(g.cat)}</td><td><button class="del" onclick="del('gerak','${g.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada riwayat</div>'}</div>`;
 }
 function addStok(e) {
   e.preventDefault(); const f = new FormData(e.target);
-  db.stok.push({ id: uid(), nama: f.get('nama').trim(), satuan: f.get('satuan').trim(), min: +f.get('min') || 0 });
+  db.stok.push({ id: uid(), nama: f.get('nama').trim(), satuan: f.get('satuan').trim(), min: +f.get('min') || 0, harga: +f.get('harga') || 0 });
   save(); render(); toast('Bahan ditambahkan');
 }
 function addGerak(e) {
@@ -345,8 +355,8 @@ function vMenu() {
     </div></form>
     <p style="font-size:12px;color:var(--mute);margin:10px 0 0">Stok berkurang otomatis saat menu terjual (kasir atau order online selesai).</p>` : '<div class="empty">Tambah menu dan bahan stok dulu</div>'}
   </div>
-  <div class="card wrap"><h2>Daftar menu</h2>${db.menu.length ? `<table><tr><th>Menu</th><th>Kategori</th><th class="r">Harga</th><th>Resep</th><th></th></tr>
-  ${db.menu.map(m => `<tr><td>${esc(m.nama)}</td><td>${esc(m.kategori)}</td><td class="r">${rp(m.harga)}</td><td>${resep(m)}</td><td><button class="del" onclick="del('menu','${m.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada menu</div>'}</div>`;
+  <div class="card wrap"><h2>Daftar menu</h2>${db.menu.length ? `<table><tr><th>Menu</th><th>Kategori</th><th class="r">Harga</th><th class="r">HPP</th><th class="r">Laba/porsi</th><th>Resep</th><th></th></tr>
+  ${db.menu.map(m => `<tr><td>${esc(m.nama)}</td><td>${esc(m.kategori)}</td><td class="r">${rp(m.harga)}</td>${hppCells(m)}<td>${resep(m)}</td><td><button class="del" onclick="del('menu','${m.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada menu</div>'}</div>`;
 }
 function addMenu(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -482,6 +492,7 @@ function syncOnline(o) {
 function addOnline(e) {
   e.preventDefault(); const f = new FormData(e.target);
   const o = { id: uid(), tgl: f.get('tgl'), platform: f.get('platform'), noOrder: f.get('noOrder').trim(), menu: f.get('menu').trim(), qty: +f.get('qty'), harga: +f.get('harga'), fee: +f.get('fee') || 0, status: f.get('status') };
+  const h = hppMenu(o.menu); if (h) o.hpp = h;
   db.online.push(o); syncOnline(o);
   bulan = o.tgl.slice(0, 7); save(); render(); toast('Order tersimpan');
 }
@@ -490,8 +501,94 @@ function setStatusOn(id, s) {
   o.status = s; syncOnline(o); save(); render();
 }
 
+/* ---------- HPP ---------- */
+function hppMenu(nama) {
+  const m = findMenu(nama); if (!m) return 0;
+  return (m.resep || []).reduce((s, r) => s + r.qty * ((db.stok.find(x => x.id === r.itemId) || {}).harga || 0), 0);
+}
+const hppOf = x => x.hpp != null ? x.hpp : hppMenu(x.menu);
+function hppCells(m) {
+  const resep = m.resep || [];
+  if (!resep.length) return '<td class="r" colspan="2"><span style="color:var(--mute)">belum ada resep</span></td>';
+  const lengkap = resep.every(r => ((db.stok.find(x => x.id === r.itemId) || {}).harga || 0) > 0);
+  const h = hppMenu(m.nama), laba = m.harga - h, pct = m.harga ? Math.round(laba / m.harga * 100) : 0;
+  return `<td class="r">${rp(h)}${lengkap ? '' : ' <span class="tag low" title="Ada bahan tanpa harga beli">!</span>'}</td><td class="r ${laba >= 0 ? 'ok' : 'bad'}"><b>${rp(laba)}</b> <small>(${pct}%)</small></td>`;
+}
+function setHarga(id) {
+  const s = db.stok.find(x => x.id === id); if (!s) return;
+  const v = prompt(`Harga beli per ${s.satuan} untuk ${s.nama} (Rp):`, s.harga || '');
+  if (v === null) return;
+  const n = parseFloat(String(v).replace(/[^\d.]/g, ''));
+  if (isNaN(n) || n < 0) return alert('Angka tidak valid');
+  s.harga = n; save(); render(); toast('Harga beli diperbarui');
+}
+
+/* ---------- TUTUP KASIR ---------- */
+let tutupTgl = today();
+function sumHari(tgl) {
+  const j = db.jual.filter(x => x.tgl === tgl), on = db.online.filter(o => o.tgl === tgl && o.status === 'Selesai');
+  const by = m => j.filter(x => x.bayar === m).reduce((s, x) => s + x.qty * x.harga, 0);
+  const tunai = by('Tunai'), qris = by('QRIS'), transfer = by('Transfer');
+  const jTotal = j.reduce((s, x) => s + x.qty * x.harga, 0);
+  const online = on.reduce((s, o) => s + o.qty * o.harga, 0) + (jTotal - tunai - qris - transfer);
+  return { tunai, qris, transfer, online, trx: j.length + on.length, keluar: db.keluar.filter(x => x.tgl === tgl).reduce((s, x) => s + x.jumlah, 0) };
+}
+const kasSeharusnya = r => r.modal + r.tunai - r.keluarTunai;
+const selisihTxt = d => (d > 0 ? '+' : '') + rp(d);
+const selisihCls = d => d === 0 ? 'ok' : d < 0 ? 'bad' : 'warn';
+function vTutup() {
+  const t = sumHari(tutupTgl), ex = db.tutup.find(x => x.tgl === tutupTgl);
+  const modal = ex ? ex.modal : 0, kt = ex ? ex.keluarTunai : t.keluar;
+  const exp = modal + t.tunai - kt, total = t.tunai + t.qris + t.transfer + t.online;
+  const sel = ex ? ex.fisik - exp : null;
+  const list = db.tutup.filter(inMonth).sort((a, b) => b.tgl.localeCompare(a.tgl));
+  return `
+  <div class="card"><h2>Tutup kasir</h2>
+    <div class="grid" style="margin-bottom:14px"><div><label>Tanggal</label><input type="date" value="${tutupTgl}" onchange="tutupTgl=this.value||tutupTgl;render()"></div></div>
+    <div class="grid" style="margin-bottom:16px">
+      <div class="stat"><div class="ic">💵</div><div><span>Tunai</span><b>${rp(t.tunai)}</b></div></div>
+      <div class="stat"><div class="ic">📱</div><div><span>QRIS</span><b>${rp(t.qris)}</b></div></div>
+      <div class="stat"><div class="ic">🏦</div><div><span>Transfer</span><b>${rp(t.transfer)}</b></div></div>
+      <div class="stat"><div class="ic">🛵</div><div><span>Online / lainnya</span><b>${rp(t.online)}</b></div></div>
+      <div class="stat"><div class="ic">💰</div><div><span>Total omzet</span><b>${rp(total)}</b><em>${t.trx} transaksi</em></div></div>
+    </div>
+    <form onsubmit="saveTutup(event)" oninput="calcTutup(this)" data-tunai="${t.tunai}">
+      <div class="grid">
+        <div><label>Modal awal kas (Rp)</label><input type="number" name="modal" min="0" step="500" value="${modal}"></div>
+        <div><label>Pengeluaran tunai (Rp)</label><input type="number" name="keluarTunai" min="0" step="500" value="${kt}"></div>
+        <div><label>Kas fisik di laci (Rp)</label><input type="number" name="fisik" min="0" step="500" value="${ex ? ex.fisik : ''}" required></div>
+        <div><label>Catatan</label><input name="catatan" value="${esc(ex ? ex.catatan : '')}" placeholder="opsional"></div>
+        <div class="stat"><div><span>Kas seharusnya</span><b id="tk-exp">${rp(exp)}</b></div></div>
+        <div class="stat"><div><span>Selisih</span><b id="tk-sel" class="${sel === null ? '' : selisihCls(sel)}">${sel === null ? '-' : selisihTxt(sel)}</b></div></div>
+      </div>
+      <p style="font-size:12px;color:var(--mute);margin:10px 0 12px">Kas seharusnya = modal awal + penjualan tunai − pengeluaran tunai. Pengeluaran tunai terisi otomatis dari total pengeluaran hari itu, ubah bila ada yang dibayar non-tunai.</p>
+      <button class="btn">${ex ? 'Perbarui tutup kasir' : 'Simpan tutup kasir'}</button>
+    </form>
+  </div>
+  <div class="bar">${monthPicker()}</div>
+  <div class="card wrap"><h2>Riwayat tutup kasir</h2>${list.length ? `<table><tr><th>Tgl</th><th class="r">Tunai</th><th class="r">QRIS</th><th class="r">Transfer</th><th class="r">Online</th><th class="r">Kas seharusnya</th><th class="r">Kas fisik</th><th class="r">Selisih</th><th>Catatan</th><th></th></tr>
+  ${list.map(r => { const d = r.fisik - kasSeharusnya(r); return `<tr><td>${fmtDate(r.tgl)}</td><td class="r">${rp(r.tunai)}</td><td class="r">${rp(r.qris)}</td><td class="r">${rp(r.transfer)}</td><td class="r">${rp(r.online)}</td><td class="r">${rp(kasSeharusnya(r))}</td><td class="r">${rp(r.fisik)}</td><td class="r ${selisihCls(d)}"><b>${selisihTxt(d)}</b></td><td>${esc(r.catatan)}</td><td><button class="del" onclick="del('tutup','${r.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada tutup kasir bulan ini</div>'}</div>`;
+}
+function calcTutup(f) {
+  const v = n => +f.elements[n].value || 0;
+  const exp = v('modal') + (+f.dataset.tunai) - v('keluarTunai');
+  $('#tk-exp').textContent = rp(exp);
+  const el = $('#tk-sel');
+  if (f.elements.fisik.value === '') { el.textContent = '-'; el.className = ''; return; }
+  const d = v('fisik') - exp;
+  el.textContent = selisihTxt(d); el.className = selisihCls(d);
+}
+function saveTutup(e) {
+  e.preventDefault(); const f = new FormData(e.target), t = sumHari(tutupTgl);
+  const modal = +f.get('modal') || 0, keluarTunai = +f.get('keluarTunai') || 0, fisik = +f.get('fisik');
+  const rec = { tgl: tutupTgl, modal, tunai: t.tunai, qris: t.qris, transfer: t.transfer, online: t.online, keluarTunai, fisik, selisih: fisik - (modal + t.tunai - keluarTunai), catatan: f.get('catatan').trim() };
+  const ex = db.tutup.find(x => x.tgl === tutupTgl);
+  if (ex) Object.assign(ex, rec); else db.tutup.push({ id: uid(), ...rec });
+  bulan = tutupTgl.slice(0, 7); save(); render(); toast('Tutup kasir tersimpan');
+}
+
 /* ---------- SUPABASE ---------- */
-const COLS = ['stok', 'gerak', 'jual', 'keluar', 'menu', 'member', 'karyawan', 'absen', 'online'];
+const COLS = ['stok', 'gerak', 'jual', 'keluar', 'menu', 'member', 'karyawan', 'absen', 'online', 'tutup'];
 const SB_DEFAULT = { url: '', key: '' }; // opsional: isi di sini, atau lewat menu Pengaturan
 const SBKEY = 'kopicatat_sb', DIRTY = 'kopicatat_dirty';
 let sbCfg = (() => { try { return JSON.parse(localStorage.getItem(SBKEY)) || SB_DEFAULT; } catch (e) { return SB_DEFAULT; } })();
