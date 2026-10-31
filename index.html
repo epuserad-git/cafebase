@@ -270,7 +270,7 @@ const monthPicker = () => `<div><label>Bulan</label><input type="month" value="$
 
 function vGate() {
   return `<div class="card gate">${ic('cloudoff', 30)}<h2>Hubungkan ke cloud dulu</h2>
-    <p>Semua data Kopi Catat disimpan di Supabase, jadi aman dan bisa dibuka dari perangkat mana pun. Isi koneksi di Pengaturan. Data lama di browser ini ikut dipindahkan otomatis.</p>
+    <p>Semua data Kopi Catat disimpan di database cloud, jadi aman dan bisa dibuka dari perangkat mana pun. Isi koneksi di Pengaturan. Data lama di browser ini ikut dipindahkan otomatis.</p>
     <button class="btn" onclick="goTab('setting')">${ic('gear', 16)}Buka Pengaturan</button></div>`;
 }
 function render() {
@@ -713,7 +713,7 @@ function saveTutup(e) {
   bulan = tutupTgl.slice(0, 7); save(); render(); toast('Tutup kasir tersimpan');
 }
 
-/* ---------- SUPABASE ---------- */
+/* ---------- CLOUD ---------- */
 const COLS = ['stok', 'gerak', 'jual', 'keluar', 'menu', 'member', 'karyawan', 'absen', 'online', 'tutup'];
 const SB_DEFAULT = { url: '', key: '' }; // opsional: isi di sini, atau lewat menu Pengaturan
 const SBKEY = 'kopicatat_sb', DIRTY = 'kopicatat_dirty';
@@ -746,7 +746,7 @@ function goTab(t) { const b = document.querySelector(`#nav button[data-t="${t}"]
 function setSb(st, msg) {
   sbState = st; sbErr = msg || '';
   const ft = $('.side-foot');
-  if (ft) ft.innerHTML = (st === 'off' ? ic('cloudoff', 14) : ic('cloudok', 14)) + '<span>' + (st === 'off' ? 'Belum tersambung ke cloud. Hubungkan di Pengaturan.' : st === 'err' ? 'Offline. Perubahan disimpan di perangkat dan dikirim saat tersambung.' : 'Data tersimpan di cloud (Supabase).') + '</span>';
+  if (ft) ft.innerHTML = (st === 'off' ? ic('cloudoff', 14) : ic('cloudok', 14)) + '<span>' + (st === 'off' ? 'Belum tersambung ke cloud. Hubungkan di Pengaturan.' : st === 'err' ? 'Offline. Perubahan disimpan di perangkat dan dikirim saat tersambung.' : 'Data tersimpan di cloud.') + '</span>';
   const c = $('#sbchip');
   if (c) { c.innerHTML = { off: ic('cloudoff', 14) + 'Belum tersambung', ok: ic('cloudok', 14) + 'Tersinkron', sync: ic('sync', 14) + 'Sinkron…', err: ic('cloudoff', 14) + 'Offline, menunggu sinkron' }[st]; c.className = 'chip ' + st; }
   const ae = document.activeElement;
@@ -805,7 +805,7 @@ async function flush() {
   } finally { flushing = false; }
 }
 
-// Tarik data dari Supabase. merge: gabungkan data lokal yang belum tersinkron (sambungan pertama / habis offline)
+// Tarik data dari cloud. merge: gabungkan data lokal yang belum tersinkron (sambungan pertama / habis offline)
 async function sbSync(opts = {}) {
   if (!sbOn()) return setSb('off');
   setSb('sync');
@@ -845,11 +845,11 @@ window.addEventListener('online', () => { if (sbOn() && localStorage.getItem(DIR
 function vSetting() {
   const st = { off: 'Belum tersambung. Hubungkan database untuk mulai memakai aplikasi.', ok: 'Tersambung dan tersinkron.', sync: 'Menyinkronkan…', err: 'Gagal: ' + sbErr }[sbState];
   return `
-  <div class="split top"><div class="card"><h2>Koneksi Supabase</h2>
+  <div class="split top"><div class="card"><h2>Koneksi cloud</h2>
     <p style="margin:0 0 12px;font-size:14px" class="${sbState === 'ok' ? 'ok' : sbState === 'err' ? 'bad' : ''}"><b>${esc(st)}</b></p>
     <form onsubmit="saveSb(event)"><div class="grid two" style="gap:10px">
-      <div><label>Project URL</label><input name="url" placeholder="https://xxxx.supabase.co" value="${esc(sbCfg.url)}" required></div>
-      <div><label>Anon (public) key</label><input name="key" type="password" placeholder="eyJ..." value="${esc(sbCfg.key)}" required></div>
+      <div><label>Alamat server</label><input name="url" type="password" autocomplete="off" placeholder="${sbOn() ? '•••••••• tersimpan, kosongkan bila tidak diubah' : 'https://alamat-server-anda'}" ${sbOn() ? '' : 'required'}></div>
+      <div><label>Kunci akses</label><input name="key" type="password" autocomplete="off" placeholder="${sbOn() ? '•••••••• tersimpan, kosongkan bila tidak diubah' : 'Kunci akses'}" ${sbOn() ? '' : 'required'}></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
       <button class="btn">Simpan &amp; sambungkan</button>
@@ -858,22 +858,22 @@ function vSetting() {
     <p style="font-size:12px;color:var(--mute);margin:12px 0 0">Pertama kali tersambung, data lokal digabung ke database. Setelah itu setiap perubahan otomatis dikirim; jika offline, dikirim saat koneksi kembali.</p>
   </div>
   <div class="card"><h2>Setup database (sekali saja)</h2>
-    <ol class="steps"><li>Buat project di supabase.com.</li><li>Buka <b>SQL Editor</b>, tempel SQL di bawah, lalu <b>Run</b>.</li><li>Ambil <b>Project URL</b> dan <b>anon key</b> di Project Settings → API, isi di atas.</li></ol>
+    <ol class="steps"><li>Siapkan database PostgreSQL cloud Anda.</li><li>Buka editor SQL, tempel SQL di bawah, lalu jalankan.</li><li>Ambil alamat server dan kunci akses dari pengaturan API, isi di atas.</li></ol>
     <div class="code">${esc(SQL_SETUP)}</div>
     <button class="btn alt" onclick="navigator.clipboard.writeText(SQL_SETUP).then(() => toast('SQL disalin'))">${ic('copy', 16)}Salin SQL</button>
-    <p class="note">${ic('alert', 16)}<span><b>Perhatian:</b> aplikasi ini belum memakai login, jadi siapa pun yang memegang URL dan anon key bisa membaca dan mengubah data. Cukup untuk uji coba; tambahkan login sebelum dipakai sungguhan.</span></p>
+    <p class="note">${ic('alert', 16)}<span><b>Perhatian:</b> aplikasi ini belum memakai login, jadi siapa pun yang memegang alamat server dan kunci akses bisa membaca dan mengubah data. Cukup untuk uji coba; tambahkan login sebelum dipakai sungguhan.</span></p>
   </div></div>`;
 }
 async function saveSb(e) {
   e.preventDefault(); const f = new FormData(e.target);
-  const url = f.get('url').trim().replace(/\/+$/, ''), key = f.get('key').trim();
-  if (!/^https:\/\/.+/.test(url)) return alert('URL harus diawali https://');
+  const url = (f.get('url').trim() || sbCfg.url).replace(/\/+$/, ''), key = f.get('key').trim() || sbCfg.key;
+  if (!/^https:\/\/.+/.test(url)) return alert('Alamat server harus diawali https://');
   sbCfg = { url, key }; localStorage.setItem(SBKEY, JSON.stringify(sbCfg));
   await sbSync({ merge: true });
-  toast(sbState === 'ok' ? 'Tersambung ke Supabase' : 'Gagal tersambung');
+  toast(sbState === 'ok' ? 'Tersambung ke cloud' : 'Gagal tersambung');
 }
 function disconnectSb() {
-  if (!confirm('Putuskan Supabase? Aplikasi tidak bisa dipakai sampai tersambung lagi. Data di cloud tetap aman.')) return;
+  if (!confirm('Putuskan koneksi cloud? Aplikasi tidak bisa dipakai sampai tersambung lagi. Data di cloud tetap aman.')) return;
   sbCfg = { url: '', key: '' }; localStorage.removeItem(SBKEY); localStorage.removeItem(DIRTY); snap = {};
   setSb('off'); render();
 }
