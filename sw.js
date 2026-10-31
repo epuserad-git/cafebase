@@ -3,7 +3,7 @@
    - Permintaan ke database cloud (domain lain / /rest/v1/) TIDAK pernah di-cache atau dicegat;
      sinkron offline sudah ditangani aplikasi lewat antrean lokal.
    Naikkan VERSION setiap kali file aplikasi berubah agar cache lama terganti. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = 'kopicatat-shell-' + VERSION;
 const FONTS = 'kopicatat-fonts-' + VERSION;
 const ASSETS = [

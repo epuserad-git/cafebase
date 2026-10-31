@@ -35,6 +35,8 @@ button,.btn,.ib,.chip,#nav button,.dd-btn{touch-action:manipulation}
 .brand b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .brand small{display:block;font-size:11.5px;color:#a8998b;margin-top:1px}
 #nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
+.side,#nav{scrollbar-width:none;-ms-overflow-style:none}
+.side::-webkit-scrollbar,#nav::-webkit-scrollbar{display:none;width:0;height:0}
 #nav button{position:relative;display:flex;align-items:center;gap:11px;border:0;background:transparent;color:#c9bcaf;padding:0 12px;height:40px;border-radius:9px;font-size:13.5px;font-weight:550;cursor:pointer;text-align:left;transition:background .15s,color .15s}
 #nav button:hover{background:rgba(255,255,255,.06);color:#fff}
 #nav button.on{background:rgba(255,255,255,.1);color:#fff}
