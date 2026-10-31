@@ -1,0 +1,26 @@
+{
+  "name": "Kopi Catat",
+  "short_name": "Kopi Catat",
+  "description": "Pencatatan coffee shop: penjualan, stok, menu, member, absensi, dan tutup kasir.",
+  "lang": "id",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#2b1b17",
+  "theme_color": "#2b1b17",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Catat penjualan", "short_name": "Penjualan", "url": "./?tab=jual", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Stok", "short_name": "Stok", "url": "./?tab=stok", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Tutup kasir", "short_name": "Tutup Kasir", "url": "./?tab=tutup", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -8,6 +8,24 @@ Aplikasi pencatatan coffee shop, satu file HTML tanpa framework.
 
 Buka `index.html` di browser, atau aktifkan GitHub Pages (Settings → Pages → Deploy from branch → `main` / root).
 
+## Pasang sebagai aplikasi (PWA)
+
+Aplikasi ini sudah berupa PWA: bisa dipasang di layar utama HP/tablet dan tetap terbuka saat offline. Service worker hanya aktif lewat **HTTPS** (GitHub Pages sudah HTTPS) atau `localhost`, tidak lewat `file://`.
+
+- **Android / Chrome / Edge:** ketuk tombol **Pasang** di pojok atas, atau menu ⋮ → *Instal aplikasi*.
+- **iPhone / iPad (Safari):** ketuk **Bagikan** → *Tambah ke Layar Utama*.
+- Tekan lama ikon di Android untuk pintasan *Catat penjualan*, *Stok*, dan *Tutup kasir*.
+
+File PWA: `manifest.webmanifest`, `sw.js`, dan folder `icons/`. Semuanya harus ikut di-upload bersama `index.html`.
+
+**Saat mengubah `index.html`:** naikkan `VERSION` di `sw.js` (mis. `v1` → `v2`). Pengguna akan melihat tombol **Perbarui** saat versi baru siap. Permintaan ke database cloud tidak pernah di-cache; sinkron offline tetap lewat antrean bawaan aplikasi.
+
+## Tampilan HP & tablet
+
+- HP: navigasi bawah, tabel otomatis menjadi kartu per baris, tombol dan isian berukuran nyaman disentuh (tanpa zoom otomatis iOS).
+- Tablet: sidebar menjadi rel ikon di landscape, navigasi bawah di portrait.
+- Mendukung notch / safe area dan mode landscape.
+
 Semua data disimpan di database cloud. Cache di browser hanya dipakai saat offline dan dikirim otomatis begitu koneksi kembali. Backup di Dashboard tetap tersedia sebagai salinan cadangan.
 
 ## Menyambungkan cloud (wajib)
