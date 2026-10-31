@@ -4,56 +4,122 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kopi Catat</title>
+<meta name="theme-color" content="#241a15">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c98a3b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2v2M14 2v2M6 2v2'/%3E%3Cpath d='M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f4f1ec;--card:#fff;--ink:#241b16;--mute:#7a6a5f;--line:#ece3d9;--brand:#6f4e37;--brand2:#b98a5e;--soft:#f3e9df;--ok:#2e7d4f;--bad:#c0392b;--warn:#d98a00;--side:#2b1f19;--shadow:0 1px 2px rgba(43,31,25,.05),0 4px 14px rgba(43,31,25,.06)}
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1f1814;--mute:#756a62;--line:#e7e2db;--brand:#6f4a33;--brand-d:#583a27;--accent:#c98a3b;--soft:#f3ece4;--ok:#1f7a4a;--ok-bg:#e5f3ea;--bad:#c0392b;--bad-bg:#fbe9e7;--warn:#a96a0f;--warn-bg:#fdf1db;--side:#241a15;--r:12px;--shadow:0 1px 2px rgba(36,26,21,.04),0 2px 8px rgba(36,26,21,.04)}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+body{margin:0;font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+svg.i{flex:none;display:block}
+button,input,select{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{display:flex;min-height:100vh}
-.side{width:232px;background:var(--side);color:#e9dfd5;display:flex;flex-direction:column;padding:18px 12px;position:sticky;top:0;height:100vh;flex-shrink:0}
-.brand{font-size:19px;font-weight:700;padding:6px 10px 18px;color:#fff}
-.brand small{display:block;font-size:11px;font-weight:500;color:#b9a898;margin-top:2px}
-#nav{display:flex;flex-direction:column;gap:2px}
-#nav button{display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#cdbfb2;padding:11px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}
-#nav button i{font-style:normal;font-size:17px;width:22px;text-align:center}
-#nav button:hover{background:rgba(255,255,255,.07)}
-#nav button.on{background:var(--brand2);color:#fff}
-.side-foot{margin-top:auto;font-size:11px;color:#9c8b7c;padding:10px}
+
+/* sidebar */
+.side{width:240px;background:var(--side);color:#e8dfd6;display:flex;flex-direction:column;padding:16px 12px;position:sticky;top:0;height:100vh;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#fff}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#2a1d12;display:grid;place-items:center;flex:none}
+.brand b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.brand small{display:block;font-size:11.5px;color:#a8998b;margin-top:1px}
+#nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
+#nav button{position:relative;display:flex;align-items:center;gap:11px;border:0;background:transparent;color:#c9bcaf;padding:0 12px;height:40px;border-radius:9px;font-size:13.5px;font-weight:550;cursor:pointer;text-align:left;transition:background .15s,color .15s}
+#nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+#nav button.on{background:rgba(255,255,255,.1);color:#fff}
+#nav button.on::before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+#nav button.on svg{color:var(--accent)}
+.side-foot{margin-top:auto;display:flex;gap:8px;align-items:flex-start;font-size:11.5px;line-height:1.4;color:#9a8b7d;padding:12px 8px 2px;border-top:1px solid rgba(255,255,255,.08)}
+.side-foot svg{margin-top:1px}
+
+/* topbar + konten */
 .content{flex:1;min-width:0}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 24px 14px;background:var(--bg);position:sticky;top:0;z-index:5}
-.topbar h1{margin:0;font-size:22px}
-.topbar small{color:var(--mute);font-size:13px}
-main{max-width:1120px;margin:0 auto;padding:0 24px 32px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
-.card h2{font-size:15px;margin:0 0 12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;padding:0 24px;background:rgba(246,245,242,.88);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.topbar h1{margin:0;font-size:18px;font-weight:650;letter-spacing:-.015em}
+.tr{display:flex;align-items:center;gap:12px}
+#hdate{display:inline-flex;align-items:center;gap:6px;color:var(--mute);font-size:13px}
+main{padding:20px 24px 32px}
+
+/* kartu */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);min-width:0}
+.card h2{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:650;margin:0 0 12px}
+.card h2 svg{color:var(--mute)}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.split>.card{margin-bottom:0}
+.split.top{align-items:start}
+.dash{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.dash>.card{margin-bottom:0;display:flex;flex-direction:column}
+.s8{grid-column:span 8}.s4{grid-column:span 4}.s3{grid-column:span 3}
+.stats{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.stats>.stat{flex:1 1 215px}
+.stats.sm>.stat{flex-basis:165px}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
-.grid.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.grid.two>.card{margin-bottom:0}
-label{display:block;font-size:12px;color:var(--mute);margin-bottom:3px}
-input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
-input:focus,select:focus{outline:2px solid var(--brand2);outline-offset:-1px}
-.btn{background:var(--brand);color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;display:inline-block}
-.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand)}
-label.btn{font-size:14px;margin:0;color:var(--brand)}
-button.del{background:none;border:0;color:var(--bad);cursor:pointer;font-size:13px}
+
+/* form: field melebar mengisi baris, tombol di ujung, tanpa sel kosong */
+form>.grid{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+form>.grid>div{flex:1 1 150px;min-width:0}
+form>.grid>.row-end{flex:0 0 auto}
 .row-end{display:flex;align-items:flex-end}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}
-th{font-size:12px;color:var(--mute);font-weight:600}
-tr:hover td{background:#fbf8f4}
-td.r,th.r{text-align:right}
+label{display:block;font-size:12px;font-weight:550;color:var(--mute);margin-bottom:4px}
+input,select{width:100%;height:38px;padding:0 11px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input:hover,select:hover{border-color:#d6cec4}
+input:focus,select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(201,138,59,.22)}
+input[type=file]{height:auto}
+
+/* tombol */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;padding:0 15px;background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn:hover{background:var(--brand-d)}
+.btn.alt{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.alt:hover{background:var(--soft);border-color:#d6cec4}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+label.btn{display:inline-flex;margin:0;font-size:14px;color:var(--ink)}
+.ib{width:30px;height:30px;display:inline-grid;place-items:center;border:0;background:transparent;border-radius:8px;color:var(--mute);cursor:pointer;transition:background .15s,color .15s}
+.ib:hover{background:var(--soft);color:var(--brand)}
+.ib.dng:hover{background:var(--bad-bg);color:var(--bad)}
+
+/* tabel */
 .wrap{overflow-x:auto}
-.stat{display:flex;gap:12px;align-items:center;padding:14px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
-.stat .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--soft);flex-shrink:0}
-.stat span{font-size:12px;color:var(--mute);font-weight:600}
-.stat b{display:block;font-size:20px;margin-top:1px}
-.stat em{font-style:normal;font-size:12px;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;color:var(--mute);font-weight:600;background:#faf8f5;white-space:nowrap}
+th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#fcfaf7}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+td.act{width:1%;white-space:nowrap;text-align:right}
+td select{width:auto;height:30px;padding:0 8px;font-size:13px}
+
+/* statistik */
+.stat{display:flex;gap:12px;align-items:center;padding:14px;border-radius:var(--r);background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);min-width:0}
+.stat .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--soft);color:var(--brand);flex-shrink:0}
+.stat .ic.ok{background:var(--ok-bg);color:var(--ok)}
+.stat .ic.bad{background:var(--bad-bg);color:var(--bad)}
+.stat span{font-size:12px;color:var(--mute);font-weight:550}
+.stat b{display:block;white-space:nowrap;font-size:18px;margin-top:1px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat em{display:block;font-style:normal;font-size:12px;color:var(--mute)}
 .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
-.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600}
-.tag.low{background:#fdecea;color:var(--bad)}.tag.good{background:#e6f4ea;color:var(--ok)}
-.empty{color:var(--mute);text-align:center;padding:16px;font-size:14px}
-.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
-.bar>div{flex:1;min-width:140px}
-.chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding-top:8px;border-bottom:1px solid var(--line)}
+
+/* label status */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.tag.low{background:var(--bad-bg);color:var(--bad)}.tag.good{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}.tag.mute{background:var(--soft);color:var(--brand)}
+.tag a{display:inline-grid;place-items:center;color:inherit;opacity:.7}.tag a:hover{opacity:1}
+.muted{color:var(--mute);font-size:13px}
+.empty{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--mute);text-align:center;padding:20px 16px;font-size:14px;min-height:76px}
+.empty.ok{color:var(--ok)}
+.note{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:14px 0 0;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn)}
+.note svg{margin-top:2px}
+.scroll{flex:1;max-height:300px;overflow:auto}
+
+/* toolbar */
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.bar>div{flex:0 0 auto}
+.bar>div:first-child input{width:170px}
+.bar b{display:inline-flex;align-items:center;height:38px;padding:0 14px;background:#fff;border:1px solid var(--line);border-radius:8px;font-variant-numeric:tabular-nums}
+.bar .grp{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* grafik */
+.chart{display:flex;align-items:flex-end;gap:3px;flex:1;min-height:200px;padding-top:8px;border-bottom:1px solid var(--line)}
 .chart .col{flex:1;display:flex;align-items:flex-end;gap:1px;height:100%;min-width:0}
 .chart .col i{flex:1;border-radius:3px 3px 0 0}
 .chart .a{background:var(--brand)}.chart .b{background:#e0c3a6}
@@ -63,48 +129,59 @@ td.r,th.r{text-align:right}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
 .hb{margin:10px 0}
 .hb .t{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:4px}
+.hb .t span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .t b{font-variant-numeric:tabular-nums;white-space:nowrap}
 .hb .track{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
-.hb .fill{height:100%;background:var(--brand2);border-radius:99px}
-.chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line);cursor:pointer;white-space:nowrap}
-.chip.ok{color:var(--ok)}.chip.err{color:var(--bad)}
-.code{background:#2b1f19;color:#f1e6da;border-radius:10px;padding:12px;font-size:12px;overflow:auto;white-space:pre;margin:8px 0}
+.hb .fill{height:100%;background:var(--accent);border-radius:99px}
+
+/* status sinkron */
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--mute);cursor:pointer;white-space:nowrap}
+.chip.ok{color:var(--ok);background:var(--ok-bg);border-color:#cfe8d9}
+.chip.err{color:var(--bad);background:var(--bad-bg);border-color:#f3cdc8}
+.chip.sync{color:var(--warn);background:var(--warn-bg);border-color:#f1dfb8}
+.chip.sync svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.code{background:#241a15;color:#f1e6da;border-radius:10px;padding:12px;font-size:12px;overflow:auto;white-space:pre;margin:8px 0 12px}
 ol.steps{padding-left:20px;margin:0;font-size:14px;line-height:1.7}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#2b211b;color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
 .toast.show{opacity:1}
+
+@media(max-width:1180px){.s8,.s4{grid-column:span 12}.s3{grid-column:span 6}}
+@media(max-width:1000px){.split{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:820px){
   .app{display:block}
-  .side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;flex-direction:row;padding:6px;z-index:20;box-shadow:0 -2px 12px rgba(0,0,0,.25)}
+  .side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20;border-top:1px solid rgba(255,255,255,.08)}
   .brand,.side-foot{display:none}
   #nav{flex-direction:row;overflow-x:auto;width:100%;gap:2px}
-  #nav button{flex-direction:column;gap:2px;padding:6px 10px;min-width:70px;font-size:11px;align-items:center;text-align:center}
-  #nav button i{font-size:19px}
-  .topbar{padding:14px 14px 10px}
-  .topbar h1{font-size:19px}
-  main{padding:0 14px 96px}
+  #nav button{flex-direction:column;gap:3px;padding:6px 8px;height:auto;min-width:68px;font-size:10.5px;justify-content:center;align-items:center;text-align:center}
+  #nav button.on::before{left:25%;right:25%;top:-6px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .topbar{padding:0 14px;height:54px}
+  .topbar h1{font-size:17px}
+  #hdate{display:none}
+  main{padding:14px 14px 92px}
   .toast{bottom:84px}
+  .bar .grp{margin-left:0}
 }
+@media(max-width:560px){
+  .s3{grid-column:span 12}.card{padding:14px}
+  .stats{gap:10px}.stats>.stat{flex:1 1 calc(50% - 5px);flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+  .stat b{font-size:17px}
+  .bar>div:first-child{flex:1 1 100%}.bar>div:first-child input{width:100%}
+  .bar .grp{flex:1 1 100%}.bar .grp .btn{flex:1;padding:0 8px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side">
-    <div class="brand">☕ Kopi Catat<small>Pencatatan coffee shop</small></div>
-    <nav id="nav">
-      <button data-t="laporan" class="on"><i>📊</i><span>Dashboard</span></button>
-      <button data-t="jual"><i>🧾</i><span>Penjualan</span></button>
-      <button data-t="online"><i>🛵</i><span>Online</span></button>
-      <button data-t="menu"><i>📖</i><span>Menu</span></button>
-      <button data-t="stok"><i>📦</i><span>Stok</span></button>
-      <button data-t="member"><i>⭐</i><span>Member</span></button>
-      <button data-t="absen"><i>🕒</i><span>Absensi</span></button>
-      <button data-t="keluar"><i>💸</i><span>Pengeluaran</span></button>
-      <button data-t="tutup"><i>🔒</i><span>Tutup Kasir</span></button>
-      <button data-t="setting"><i>⚙️</i><span>Pengaturan</span></button>
-    </nav>
-    <div class="side-foot">Data tersimpan di browser ini. Backup rutin dari Dashboard.</div>
+    <div class="brand"><div class="logo"></div><div><b>Kopi Catat</b><small>Pencatatan coffee shop</small></div></div>
+    <nav id="nav"></nav>
+    <div class="side-foot"></div>
   </aside>
   <div class="content">
-    <div class="topbar"><h1 id="ptitle">Dashboard</h1><div style="display:flex;gap:10px;align-items:center"><span class="chip" id="sbchip" onclick="goTab('setting')"></span><small id="hdate"></small></div></div>
+    <header class="topbar"><h1 id="ptitle">Dashboard</h1><div class="tr"><button type="button" class="chip" id="sbchip" onclick="goTab('setting')" title="Status sinkron"></button><span id="hdate"></span></div></header>
     <main id="app"></main>
   </div>
 </div>
@@ -118,6 +195,43 @@ try { db = Object.assign(empty(), JSON.parse(localStorage.getItem(KEY) || '{}'))
 const save = () => { localStorage.setItem(KEY, JSON.stringify(db)); queueSync(); };
 
 const $ = s => document.querySelector(s);
+const P = {
+  coffee:'<path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>',
+  dash:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+  receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+  bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  box:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+  lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  up:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  down:'<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  cash:'<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  calc:'<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>',
+  qr:'<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01M12 7v3a2 2 0 0 1-2 2H7M3 12h.01M12 3h.01M12 16v.01M16 12h1M21 12v.01M12 21v-1"/>',
+  bank:'<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+  alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  db:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+  hdd:'<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>',
+  cloudok:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="m9 13 2 2 4-4"/>',
+  cloudoff:'<path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/>',
+  sync:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  cal:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>'
+};
+const ic = (n, s = 18) => `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || ''}</svg>`;
+const NAV = [['laporan', 'dash', 'Dashboard'], ['jual', 'receipt', 'Penjualan'], ['online', 'bag', 'Online'], ['menu', 'book', 'Menu'], ['stok', 'box', 'Stok'], ['member', 'users', 'Member'], ['absen', 'clock', 'Absensi'], ['keluar', 'wallet', 'Pengeluaran'], ['tutup', 'lock', 'Tutup Kasir'], ['setting', 'gear', 'Pengaturan']];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const rp = n => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
@@ -134,7 +248,10 @@ const PLATFORM = ['GoFood', 'GrabFood', 'ShopeeFood', 'Lainnya'];
 const STATUS_ON = ['Diterima', 'Selesai', 'Batal'];
 const POIN_PER = 10000; // 1 poin tiap Rp10.000
 
-$('#hdate').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+$('.logo').innerHTML = ic('coffee', 20);
+$('.side-foot').innerHTML = ic('hdd', 14) + '<span>Data tersimpan di browser ini. Backup rutin dari Dashboard.</span>';
+$('#nav').innerHTML = NAV.map(([t, i, l]) => `<button data-t="${t}"${t === 'laporan' ? ' class="on"' : ''}>${ic(i, 18)}<span>${l}</span></button>`).join('');
+$('#hdate').innerHTML = ic('cal', 14) + new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 $('#nav').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   tab = b.dataset.t;
@@ -155,7 +272,7 @@ function render() {
 /* ---------- DASHBOARD ---------- */
 function hbars(entries, fmt) {
   const max = Math.max(...entries.map(e => e[1]), 1);
-  return entries.map(([n, v]) => `<div class="hb"><div class="t"><span>${esc(n)}</span><b>${fmt(v)}</b></div><div class="track"><div class="fill" style="width:${Math.max(3, v / max * 100)}%"></div></div></div>`).join('');
+  return entries.map(([n, v]) => `<div class="hb"><div class="t"><span title="${esc(n)}">${esc(n)}</span><b>${fmt(v)}</b></div><div class="track"><div class="fill" style="width:${Math.max(3, v / max * 100)}%"></div></div></div>`).join('');
 }
 function vLaporan() {
   const j = db.jual.filter(inMonth), k = db.keluar.filter(inMonth);
@@ -193,29 +310,29 @@ function vLaporan() {
   const chart = dIn.map((v, i) => `<div class="col" title="Tgl ${i + 1}: omzet ${rp(v)}, keluar ${rp(dOut[i])}"><i class="a" style="height:${v / mx * 100}%"></i><i class="b" style="height:${dOut[i] / mx * 100}%"></i></div>`).join('');
   const axis = dIn.map((_, i) => `<span>${i === 0 || (i + 1) % 5 === 0 ? i + 1 : ''}</span>`).join('');
 
+  const stat = (icon, cls, label, val, sub, vcls) => `<div class="stat"><div class="ic ${cls}">${ic(icon, 20)}</div><div><span>${label}</span><b class="${vcls}">${val}</b><em>${sub}</em></div></div>`;
+  const empty = t => `<div class="empty">${t}</div>`;
   return `
   <div class="bar">${monthPicker()}
-    <div><button class="btn alt" onclick="exportCSV()">Ekspor CSV</button></div>
-    <div><button class="btn alt" onclick="backup()">Backup</button></div>
-    <div><label class="btn alt" for="rs" style="cursor:pointer">Restore</label><input id="rs" type="file" accept=".json" hidden onchange="restore(this)"></div>
+    <div class="grp"><button class="btn alt" onclick="exportCSV()">${ic('download', 16)}Ekspor CSV</button><button class="btn alt" onclick="backup()">${ic('db', 16)}Backup</button><label class="btn alt" for="rs">${ic('upload', 16)}Restore</label><input id="rs" type="file" accept=".json" hidden onchange="restore(this)"></div>
   </div>
-  <div class="grid" style="margin-bottom:16px">
-    <div class="stat"><div class="ic">💰</div><div><span>Omzet</span><b>${rp(omzet)}</b><em>${j.length + on.length} transaksi</em></div></div>
-    <div class="stat"><div class="ic">🧾</div><div><span>Pengeluaran</span><b>${rp(out)}</b><em>termasuk potongan platform</em></div></div>
-    <div class="stat"><div class="ic">${laba >= 0 ? '📈' : '📉'}</div><div><span>Laba kasar</span><b class="${laba >= 0 ? 'ok' : 'bad'}">${rp(laba)}</b><em>${margin}</em></div></div>
-    <div class="stat"><div class="ic">☀️</div><div><span>Omzet hari ini</span><b>${rp(hariIni)}</b><em>${fmtDate(today())}</em></div></div>
-    <div class="stat"><div class="ic">🧮</div><div><span>Laba menu (omzet − HPP)</span><b class="${labaTotalMenu >= 0 ? 'ok' : 'bad'}">${rp(labaTotalMenu)}</b><em>HPP ${rp(hppTotal)}</em></div></div>
+  <div class="stats">
+    ${stat('cash', '', 'Omzet', rp(omzet), `${j.length + on.length} transaksi`, '')}
+    ${stat('wallet', '', 'Pengeluaran', rp(out), 'termasuk potongan platform', '')}
+    ${stat(laba >= 0 ? 'up' : 'down', laba >= 0 ? 'ok' : 'bad', 'Laba kasar', rp(laba), margin, laba >= 0 ? 'ok' : 'bad')}
+    ${stat('sun', '', 'Omzet hari ini', rp(hariIni), fmtDate(today()), '')}
+    ${stat('calc', '', 'Laba menu (omzet − HPP)', rp(labaTotalMenu), `HPP ${rp(hppTotal)}`, labaTotalMenu >= 0 ? 'ok' : 'bad')}
   </div>
-  <div class="card"><h2>Omzet vs pengeluaran harian</h2>
-    <div class="legend"><span><i style="background:var(--brand)"></i>Omzet</span><span><i style="background:#e0c3a6"></i>Pengeluaran</span></div>
-    ${omzet || out ? `<div class="chart">${chart}</div><div class="axis">${axis}</div>` : '<div class="empty">Belum ada data bulan ini</div>'}
-  </div>
-  <div class="grid two">
-    <div class="card"><h2>Menu terlaris</h2>${top.length ? hbars(top.map(m => [`${m.nama} · ${num(m.qty)}x`, m.total]), rp) : '<div class="empty">Belum ada penjualan</div>'}</div>
-    <div class="card"><h2>Metode pembayaran</h2>${Object.keys(byPay).length ? hbars(Object.entries(byPay), rp) : '<div class="empty">Kosong</div>'}</div>
-    <div class="card"><h2>Pengeluaran per kategori</h2>${Object.keys(byCat).length ? hbars(Object.entries(byCat), rp) : '<div class="empty">Kosong</div>'}</div>
-    <div class="card"><h2>Laba per menu (estimasi)</h2>${labaMenu.length ? hbars(labaMenu.map(m => [`${m.nama} · margin ${m.total ? Math.round(m.laba / m.total * 100) : 0}%`, m.laba]), rp) + (tanpaHpp ? '<p style="font-size:12px;color:var(--mute);margin:8px 0 0">Menu tanpa resep atau harga bahan dihitung HPP Rp 0.</p>' : '') : '<div class="empty">Belum ada penjualan</div>'}</div>
-    <div class="card"><h2>⚠️ Stok menipis</h2>${low.length ? `<table>${low.map(s => `<tr><td>${esc(s.nama)}</td><td class="r bad">${num(stokNow(s.id))} ${esc(s.satuan)} <span style="color:var(--mute)">(min ${num(s.min)})</span></td></tr>`).join('')}</table>` : '<div class="empty">Semua stok aman</div>'}</div>
+  <div class="dash">
+    <div class="card s8"><h2>Omzet vs pengeluaran harian</h2>
+      <div class="legend"><span><i style="background:var(--brand)"></i>Omzet</span><span><i style="background:#e0c3a6"></i>Pengeluaran</span></div>
+      ${omzet || out ? `<div class="chart">${chart}</div><div class="axis">${axis}</div>` : empty('Belum ada data bulan ini')}
+    </div>
+    <div class="card s4"><h2>${ic(low.length ? 'alert' : 'box', 16)}${low.length ? `Stok menipis (${low.length})` : 'Status stok'}</h2>${db.stok.length ? `<div class="scroll"><table>${db.stok.slice().sort((a, b) => (stokNow(a.id) <= a.min ? 0 : 1) - (stokNow(b.id) <= b.min ? 0 : 1)).map(s => { const lo = stokNow(s.id) <= s.min; return `<tr><td>${esc(s.nama)}</td><td class="r ${lo ? 'bad' : ''}">${num(stokNow(s.id))} ${esc(s.satuan)}</td><td class="act"><span class="tag ${lo ? 'low' : 'good'}">${lo ? 'Menipis' : 'Aman'}</span></td></tr>`; }).join('')}</table></div>` : '<div class="empty">Belum ada bahan</div>'}</div>
+    <div class="card s3"><h2>Menu terlaris</h2>${top.length ? hbars(top.map(m => [`${m.nama} · ${num(m.qty)}x`, m.total]), rp) : empty('Belum ada penjualan')}</div>
+    <div class="card s3"><h2>Laba per menu (estimasi)</h2>${labaMenu.length ? hbars(labaMenu.map(m => [`${m.nama} · margin ${m.total ? Math.round(m.laba / m.total * 100) : 0}%`, m.laba]), rp) + (tanpaHpp ? '<p class="muted" style="margin:8px 0 0;font-size:12px">Menu tanpa resep atau harga bahan dihitung HPP Rp 0.</p>' : '') : empty('Belum ada penjualan')}</div>
+    <div class="card s3"><h2>Metode pembayaran</h2>${Object.keys(byPay).length ? hbars(Object.entries(byPay), rp) : empty('Kosong')}</div>
+    <div class="card s3"><h2>Pengeluaran per kategori</h2>${Object.keys(byCat).length ? hbars(Object.entries(byCat), rp) : empty('Kosong')}</div>
   </div>`;
 }
 
@@ -233,12 +350,12 @@ function vJual() {
       <div><label>Harga satuan</label><input type="number" name="harga" min="0" step="500" required></div>
       <div><label>Bayar</label><select name="bayar">${BAYAR.map(b => `<option>${b}</option>`).join('')}</select></div>
       <div><label>Member (opsional)</label><select name="memberId"><option value="">-</option>${db.member.map(m => `<option value="${m.id}">${esc(m.nama)}</option>`).join('')}</select></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
+      <div class="row-end"><button class="btn">Simpan</button></div>
     </div><datalist id="menus">${menus.map(m => `<option value="${esc(m)}">`).join('')}</datalist></form>
   </div>
   <div class="bar">${monthPicker()}<div><b>Total: ${rp(total)}</b></div></div>
   <div class="card wrap">${list.length ? `<table><tr><th>Tgl</th><th>Menu</th><th class="r">Qty</th><th class="r">Harga</th><th class="r">Total</th><th>Bayar</th><th></th></tr>
-  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(x.menu)}</td><td class="r">${num(x.qty)}</td><td class="r">${rp(x.harga)}</td><td class="r">${rp(x.qty * x.harga)}</td><td>${esc(x.bayar)}${x.memberId ? ' · ' + esc(memberName(x.memberId)) : ''}</td><td><button class="del" onclick="del('jual','${x.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
+  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(x.menu)}</td><td class="r">${num(x.qty)}</td><td class="r">${rp(x.harga)}</td><td class="r">${rp(x.qty * x.harga)}</td><td><span class="tag mute">${esc(x.bayar)}</span>${x.memberId ? ' <span class="muted">' + esc(memberName(x.memberId)) + '</span>' : ''}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('jual','${x.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
 }
 function addJual(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -254,13 +371,13 @@ function vStok() {
   const nm = id => (db.stok.find(s => s.id === id) || {}).nama || '(dihapus)';
   const sat = id => (db.stok.find(s => s.id === id) || {}).satuan || '';
   return `
-  <div class="card"><h2>Tambah bahan baru</h2>
+  <div class="split"><div class="card"><h2>Tambah bahan baru</h2>
     <form onsubmit="addStok(event)"><div class="grid">
       <div><label>Nama bahan</label><input name="nama" placeholder="Biji kopi" required></div>
       <div><label>Satuan</label><input name="satuan" placeholder="kg / liter / pcs" required></div>
       <div><label>Batas minimum</label><input type="number" name="min" min="0" step="any" value="0"></div>
       <div><label>Harga beli / satuan (Rp)</label><input type="number" name="harga" min="0" step="any" placeholder="mis. 180000"></div>
-      <div class="row-end"><button class="btn" style="width:100%">Tambah</button></div>
+      <div class="row-end"><button class="btn">Tambah</button></div>
     </div></form>
   </div>
   <div class="card"><h2>Catat stok masuk / keluar</h2>
@@ -270,13 +387,13 @@ function vStok() {
       <div><label>Jenis</label><select name="tipe"><option value="masuk">Masuk</option><option value="keluar">Keluar / terpakai</option></select></div>
       <div><label>Jumlah</label><input type="number" name="qty" min="0" step="any" required></div>
       <div><label>Catatan</label><input name="cat" placeholder="Belanja pasar / rusak"></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
+      <div class="row-end"><button class="btn">Simpan</button></div>
     </div></form>` : '<div class="empty">Tambah bahan dulu</div>'}
-  </div>
+  </div></div>
   <div class="card wrap"><h2>Stok saat ini</h2>${db.stok.length ? `<table><tr><th>Bahan</th><th class="r">Stok</th><th class="r">Min</th><th class="r">Harga beli/sat</th><th>Status</th><th></th></tr>
-  ${db.stok.map(s => { const n = stokNow(s.id), lo = n <= s.min; return `<tr><td>${esc(s.nama)}</td><td class="r">${num(n)} ${esc(s.satuan)}</td><td class="r">${num(s.min)}</td><td class="r">${s.harga ? rp(s.harga) : '-'} <button class="del" style="color:var(--brand)" onclick="setHarga('${s.id}')">Ubah</button></td><td><span class="tag ${lo ? 'low' : 'good'}">${lo ? 'Menipis' : 'Aman'}</span></td><td><button class="del" onclick="del('stok','${s.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada bahan</div>'}</div>
+  ${db.stok.map(s => { const n = stokNow(s.id), lo = n <= s.min; return `<tr><td>${esc(s.nama)}</td><td class="r">${num(n)} ${esc(s.satuan)}</td><td class="r">${num(s.min)}</td><td class="r">${s.harga ? rp(s.harga) : '-'} <button class="ib" title="Ubah harga" aria-label="Ubah harga" onclick="setHarga('${s.id}')">${ic('edit', 15)}</button></td><td><span class="tag ${lo ? 'low' : 'good'}">${lo ? 'Menipis' : 'Aman'}</span></td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('stok','${s.id}')">${ic('trash', 16)}</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada bahan</div>'}</div>
   <div class="card wrap"><h2>Riwayat terakhir</h2>${riw.length ? `<table><tr><th>Tgl</th><th>Bahan</th><th>Jenis</th><th class="r">Jumlah</th><th>Catatan</th><th></th></tr>
-  ${riw.map(g => `<tr><td>${fmtDate(g.tgl)}</td><td>${esc(nm(g.itemId))}</td><td class="${g.tipe === 'masuk' ? 'ok' : 'bad'}">${g.tipe === 'masuk' ? 'Masuk' : 'Keluar'}</td><td class="r">${num(g.qty)} ${esc(sat(g.itemId))}</td><td>${esc(g.cat)}</td><td><button class="del" onclick="del('gerak','${g.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada riwayat</div>'}</div>`;
+  ${riw.map(g => `<tr><td>${fmtDate(g.tgl)}</td><td>${esc(nm(g.itemId))}</td><td class="${g.tipe === 'masuk' ? 'ok' : 'bad'}">${g.tipe === 'masuk' ? 'Masuk' : 'Keluar'}</td><td class="r">${num(g.qty)} ${esc(sat(g.itemId))}</td><td>${esc(g.cat)}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('gerak','${g.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada riwayat</div>'}</div>`;
 }
 function addStok(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -302,12 +419,12 @@ function vKeluar() {
       <div><label>Kategori</label><select name="kategori">${CATS.map(c => `<option>${c}</option>`).join('')}</select></div>
       <div><label>Keterangan</label><input name="ket" placeholder="Beli susu 10 liter"></div>
       <div><label>Jumlah (Rp)</label><input type="number" name="jumlah" min="0" step="500" required></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
+      <div class="row-end"><button class="btn">Simpan</button></div>
     </div></form>
   </div>
   <div class="bar">${monthPicker()}<div><b>Total: ${rp(total)}</b></div></div>
   <div class="card wrap">${list.length ? `<table><tr><th>Tgl</th><th>Kategori</th><th>Keterangan</th><th class="r">Jumlah</th><th></th></tr>
-  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(x.kategori)}</td><td>${esc(x.ket)}</td><td class="r">${rp(x.jumlah)}</td><td><button class="del" onclick="del('keluar','${x.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
+  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(x.kategori)}</td><td>${esc(x.ket)}</td><td class="r">${rp(x.jumlah)}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('keluar','${x.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
 }
 function addKeluar(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -336,14 +453,14 @@ function applyResep(menu, qty, tgl, ref) {
 /* ---------- MENU & RESEP ---------- */
 const KATMENU = ['Kopi', 'Non-Kopi', 'Makanan', 'Lainnya'];
 function vMenu() {
-  const resep = m => (m.resep || []).map(r => `<span class="tag good" style="margin:2px 4px 2px 0">${esc(stokName(r.itemId))} ${num(r.qty)} ${esc(stokSat(r.itemId))} <a href="#" class="bad" onclick="delResep('${m.id}','${r.itemId}');return false">×</a></span>`).join('') || '<span style="color:var(--mute)">-</span>';
+  const resep = m => (m.resep || []).map(r => `<span class="tag good" style="margin:2px 4px 2px 0">${esc(stokName(r.itemId))} ${num(r.qty)} ${esc(stokSat(r.itemId))} <a href="#" title="Hapus bahan" onclick="delResep('${m.id}','${r.itemId}');return false">${ic('x', 12)}</a></span>`).join('') || '<span style="color:var(--mute)">-</span>';
   return `
-  <div class="card"><h2>Tambah menu</h2>
+  <div class="split"><div class="card"><h2>Tambah menu</h2>
     <form onsubmit="addMenu(event)"><div class="grid">
       <div><label>Nama menu</label><input name="nama" placeholder="Es Kopi Susu" required></div>
       <div><label>Kategori</label><select name="kategori">${KATMENU.map(c => `<option>${c}</option>`).join('')}</select></div>
       <div><label>Harga jual</label><input type="number" name="harga" min="0" step="500" required></div>
-      <div class="row-end"><button class="btn" style="width:100%">Tambah</button></div>
+      <div class="row-end"><button class="btn">Tambah</button></div>
     </div></form>
   </div>
   <div class="card"><h2>Resep (takaran per 1 porsi)</h2>
@@ -351,12 +468,12 @@ function vMenu() {
       <div><label>Menu</label><select name="menuId">${db.menu.map(m => `<option value="${m.id}">${esc(m.nama)}</option>`).join('')}</select></div>
       <div><label>Bahan</label><select name="itemId">${db.stok.map(s => `<option value="${s.id}">${esc(s.nama)} (${esc(s.satuan)})</option>`).join('')}</select></div>
       <div><label>Takaran</label><input type="number" name="qty" min="0" step="any" required></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan resep</button></div>
+      <div class="row-end"><button class="btn">Simpan resep</button></div>
     </div></form>
     <p style="font-size:12px;color:var(--mute);margin:10px 0 0">Stok berkurang otomatis saat menu terjual (kasir atau order online selesai).</p>` : '<div class="empty">Tambah menu dan bahan stok dulu</div>'}
-  </div>
+  </div></div>
   <div class="card wrap"><h2>Daftar menu</h2>${db.menu.length ? `<table><tr><th>Menu</th><th>Kategori</th><th class="r">Harga</th><th class="r">HPP</th><th class="r">Laba/porsi</th><th>Resep</th><th></th></tr>
-  ${db.menu.map(m => `<tr><td>${esc(m.nama)}</td><td>${esc(m.kategori)}</td><td class="r">${rp(m.harga)}</td>${hppCells(m)}<td>${resep(m)}</td><td><button class="del" onclick="del('menu','${m.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada menu</div>'}</div>`;
+  ${db.menu.map(m => `<tr><td>${esc(m.nama)}</td><td>${esc(m.kategori)}</td><td class="r">${rp(m.harga)}</td>${hppCells(m)}<td>${resep(m)}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('menu','${m.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada menu</div>'}</div>`;
 }
 function addMenu(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -388,12 +505,12 @@ function vMember() {
     <form onsubmit="addMember(event)"><div class="grid">
       <div><label>Nama</label><input name="nama" required></div>
       <div><label>No. HP</label><input name="hp" type="tel" placeholder="08xxxxxxxxxx"></div>
-      <div class="row-end"><button class="btn" style="width:100%">Daftarkan</button></div>
+      <div class="row-end"><button class="btn">Daftarkan</button></div>
     </div></form>
     <p style="font-size:12px;color:var(--mute);margin:10px 0 0">Pilih member saat mencatat penjualan. 1 poin tiap belanja ${rp(POIN_PER)}.</p>
   </div>
   <div class="card wrap"><h2>Member</h2>${db.member.length ? `<table><tr><th>Nama</th><th>HP</th><th class="r">Total belanja</th><th class="r">Poin</th><th></th></tr>
-  ${db.member.map(m => { const tot = db.jual.filter(x => x.memberId === m.id).reduce((s, x) => s + x.qty * x.harga, 0); return `<tr><td>${esc(m.nama)}</td><td>${esc(m.hp)}</td><td class="r">${rp(tot)}</td><td class="r"><b>${num(poinMember(m))}</b></td><td><button class="del" style="color:var(--brand)" onclick="tukarPoin('${m.id}')">Tukar</button> <button class="del" onclick="del('member','${m.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada member</div>'}</div>`;
+  ${db.member.map(m => { const tot = db.jual.filter(x => x.memberId === m.id).reduce((s, x) => s + x.qty * x.harga, 0); return `<tr><td>${esc(m.nama)}</td><td>${esc(m.hp)}</td><td class="r">${rp(tot)}</td><td class="r"><b>${num(poinMember(m))}</b></td><td class="act"><button class="btn alt sm" onclick="tukarPoin('${m.id}')">${ic('gift', 14)}Tukar</button> <button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('member','${m.id}')">${ic('trash', 16)}</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada member</div>'}</div>`;
 }
 function addMember(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -423,11 +540,11 @@ function vAbsen() {
     return { nama: k.nama, hadir: a.filter(x => x.status === 'Hadir').length, izin: a.filter(x => x.status === 'Izin' || x.status === 'Sakit').length, alpha: a.filter(x => x.status === 'Alpha').length, jam: a.filter(x => x.status === 'Hadir').reduce((s, x) => s + jam(x.masuk, x.pulang), 0) };
   });
   return `
-  <div class="card"><h2>Tambah karyawan</h2>
+  <div class="split"><div class="card"><h2>Tambah karyawan</h2>
     <form onsubmit="addKaryawan(event)"><div class="grid">
       <div><label>Nama</label><input name="nama" required></div>
       <div><label>Jabatan</label><input name="jabatan" placeholder="Barista / Kasir"></div>
-      <div class="row-end"><button class="btn" style="width:100%">Tambah</button></div>
+      <div class="row-end"><button class="btn">Tambah</button></div>
     </div></form>
   </div>
   <div class="card"><h2>Catat absensi</h2>
@@ -437,14 +554,14 @@ function vAbsen() {
       <div><label>Status</label><select name="status"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpha</option></select></div>
       <div><label>Masuk</label><input type="time" name="masuk"></div>
       <div><label>Pulang</label><input type="time" name="pulang"></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
+      <div class="row-end"><button class="btn">Simpan</button></div>
     </div></form>` : '<div class="empty">Tambah karyawan dulu</div>'}
-  </div>
+  </div></div>
   <div class="bar">${monthPicker()}</div>
   <div class="card wrap"><h2>Rekap bulan ini</h2>${rekap.length ? `<table><tr><th>Karyawan</th><th class="r">Hadir</th><th class="r">Izin/Sakit</th><th class="r">Alpha</th><th class="r">Total jam</th><th></th></tr>
-  ${rekap.map((r, i) => `<tr><td>${esc(r.nama)}</td><td class="r">${r.hadir}</td><td class="r">${r.izin}</td><td class="r ${r.alpha ? 'bad' : ''}">${r.alpha}</td><td class="r">${num(r.jam)}</td><td><button class="del" onclick="del('karyawan','${db.karyawan[i].id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada karyawan</div>'}</div>
+  ${rekap.map((r, i) => `<tr><td>${esc(r.nama)}</td><td class="r">${r.hadir}</td><td class="r">${r.izin}</td><td class="r ${r.alpha ? 'bad' : ''}">${r.alpha}</td><td class="r">${num(r.jam)}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('karyawan','${db.karyawan[i].id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada karyawan</div>'}</div>
   <div class="card wrap"><h2>Riwayat absensi</h2>${list.length ? `<table><tr><th>Tgl</th><th>Karyawan</th><th>Status</th><th>Masuk</th><th>Pulang</th><th class="r">Jam</th><th></th></tr>
-  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(kn(x.karyawanId))}</td><td>${esc(x.status)}</td><td>${esc(x.masuk || '-')}</td><td>${esc(x.pulang || '-')}</td><td class="r">${x.status === 'Hadir' ? num(jam(x.masuk, x.pulang)) : '-'}</td><td><button class="del" onclick="del('absen','${x.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
+  ${list.map(x => `<tr><td>${fmtDate(x.tgl)}</td><td>${esc(kn(x.karyawanId))}</td><td><span class="tag ${x.status === 'Hadir' ? 'good' : x.status === 'Alpha' ? 'low' : 'warn'}">${esc(x.status)}</span></td><td>${esc(x.masuk || '-')}</td><td>${esc(x.pulang || '-')}</td><td class="r">${x.status === 'Hadir' ? num(jam(x.masuk, x.pulang)) : '-'}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('absen','${x.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada data bulan ini</div>'}</div>`;
 }
 function addKaryawan(e) {
   e.preventDefault(); const f = new FormData(e.target);
@@ -477,13 +594,13 @@ function vOnline() {
       <div><label>Harga satuan</label><input type="number" name="harga" min="0" step="500" required></div>
       <div><label>Potongan platform (%)</label><input type="number" name="fee" min="0" max="100" step="any" value="20"></div>
       <div><label>Status</label><select name="status">${STATUS_ON.map(s => `<option>${s}</option>`).join('')}</select></div>
-      <div class="row-end"><button class="btn" style="width:100%">Simpan</button></div>
+      <div class="row-end"><button class="btn">Simpan</button></div>
     </div><datalist id="menus2">${menus.map(m => `<option value="${esc(m)}">`).join('')}</datalist></form>
     <p style="font-size:12px;color:var(--mute);margin:10px 0 0">Hanya order berstatus Selesai yang masuk omzet dan mengurangi stok.</p>
   </div>
   <div class="bar">${monthPicker()}<div><b>Kotor: ${rp(kotor)}</b></div><div><b>Potongan: ${rp(potong)}</b></div><div><b class="ok">Bersih: ${rp(kotor - potong)}</b></div></div>
   <div class="card wrap">${list.length ? `<table><tr><th>Tgl</th><th>Platform</th><th>No.</th><th>Menu</th><th class="r">Qty</th><th class="r">Total</th><th class="r">Fee</th><th>Status</th><th></th></tr>
-  ${list.map(o => `<tr><td>${fmtDate(o.tgl)}</td><td>${esc(o.platform)}</td><td>${esc(o.noOrder)}</td><td>${esc(o.menu)}</td><td class="r">${num(o.qty)}</td><td class="r">${rp(o.qty * o.harga)}</td><td class="r">${num(o.fee)}%</td><td><select style="padding:4px" onchange="setStatusOn('${o.id}',this.value)">${STATUS_ON.map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}</select></td><td><button class="del" onclick="del('online','${o.id}')">Hapus</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada order bulan ini</div>'}</div>`;
+  ${list.map(o => `<tr><td>${fmtDate(o.tgl)}</td><td>${esc(o.platform)}</td><td>${esc(o.noOrder)}</td><td>${esc(o.menu)}</td><td class="r">${num(o.qty)}</td><td class="r">${rp(o.qty * o.harga)}</td><td class="r">${num(o.fee)}%</td><td><select style="padding:4px" onchange="setStatusOn('${o.id}',this.value)">${STATUS_ON.map(s => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}</select></td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('online','${o.id}')">${ic('trash', 16)}</button></td></tr>`).join('')}</table>` : '<div class="empty">Belum ada order bulan ini</div>'}</div>`;
 }
 function syncOnline(o) {
   db.gerak = db.gerak.filter(g => g.ref !== o.id);
@@ -544,13 +661,13 @@ function vTutup() {
   const list = db.tutup.filter(inMonth).sort((a, b) => b.tgl.localeCompare(a.tgl));
   return `
   <div class="card"><h2>Tutup kasir</h2>
-    <div class="grid" style="margin-bottom:14px"><div><label>Tanggal</label><input type="date" value="${tutupTgl}" onchange="tutupTgl=this.value||tutupTgl;render()"></div></div>
-    <div class="grid" style="margin-bottom:16px">
-      <div class="stat"><div class="ic">💵</div><div><span>Tunai</span><b>${rp(t.tunai)}</b></div></div>
-      <div class="stat"><div class="ic">📱</div><div><span>QRIS</span><b>${rp(t.qris)}</b></div></div>
-      <div class="stat"><div class="ic">🏦</div><div><span>Transfer</span><b>${rp(t.transfer)}</b></div></div>
-      <div class="stat"><div class="ic">🛵</div><div><span>Online / lainnya</span><b>${rp(t.online)}</b></div></div>
-      <div class="stat"><div class="ic">💰</div><div><span>Total omzet</span><b>${rp(total)}</b><em>${t.trx} transaksi</em></div></div>
+    <div class="bar" style="margin-bottom:14px"><div><label>Tanggal</label><input type="date" value="${tutupTgl}" onchange="tutupTgl=this.value||tutupTgl;render()"></div></div>
+    <div class="stats sm">
+      <div class="stat"><div class="ic">${ic('cash', 20)}</div><div><span>Tunai</span><b>${rp(t.tunai)}</b></div></div>
+      <div class="stat"><div class="ic">${ic('qr', 20)}</div><div><span>QRIS</span><b>${rp(t.qris)}</b></div></div>
+      <div class="stat"><div class="ic">${ic('bank', 20)}</div><div><span>Transfer</span><b>${rp(t.transfer)}</b></div></div>
+      <div class="stat"><div class="ic">${ic('bag', 20)}</div><div><span>Online / lainnya</span><b>${rp(t.online)}</b></div></div>
+      <div class="stat"><div class="ic">${ic('up', 20)}</div><div><span>Total omzet</span><b>${rp(total)}</b><em>${t.trx} transaksi</em></div></div>
     </div>
     <form onsubmit="saveTutup(event)" oninput="calcTutup(this)" data-tunai="${t.tunai}">
       <div class="grid">
@@ -567,7 +684,7 @@ function vTutup() {
   </div>
   <div class="bar">${monthPicker()}</div>
   <div class="card wrap"><h2>Riwayat tutup kasir</h2>${list.length ? `<table><tr><th>Tgl</th><th class="r">Tunai</th><th class="r">QRIS</th><th class="r">Transfer</th><th class="r">Online</th><th class="r">Kas seharusnya</th><th class="r">Kas fisik</th><th class="r">Selisih</th><th>Catatan</th><th></th></tr>
-  ${list.map(r => { const d = r.fisik - kasSeharusnya(r); return `<tr><td>${fmtDate(r.tgl)}</td><td class="r">${rp(r.tunai)}</td><td class="r">${rp(r.qris)}</td><td class="r">${rp(r.transfer)}</td><td class="r">${rp(r.online)}</td><td class="r">${rp(kasSeharusnya(r))}</td><td class="r">${rp(r.fisik)}</td><td class="r ${selisihCls(d)}"><b>${selisihTxt(d)}</b></td><td>${esc(r.catatan)}</td><td><button class="del" onclick="del('tutup','${r.id}')">Hapus</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada tutup kasir bulan ini</div>'}</div>`;
+  ${list.map(r => { const d = r.fisik - kasSeharusnya(r); return `<tr><td>${fmtDate(r.tgl)}</td><td class="r">${rp(r.tunai)}</td><td class="r">${rp(r.qris)}</td><td class="r">${rp(r.transfer)}</td><td class="r">${rp(r.online)}</td><td class="r">${rp(kasSeharusnya(r))}</td><td class="r">${rp(r.fisik)}</td><td class="r ${selisihCls(d)}"><b>${selisihTxt(d)}</b></td><td>${esc(r.catatan)}</td><td class="act"><button class="ib dng" title="Hapus" aria-label="Hapus" onclick="del('tutup','${r.id}')">${ic('trash', 16)}</button></td></tr>`; }).join('')}</table>` : '<div class="empty">Belum ada tutup kasir bulan ini</div>'}</div>`;
 }
 function calcTutup(f) {
   const v = n => +f.elements[n].value || 0;
@@ -620,7 +737,7 @@ function goTab(t) { const b = document.querySelector(`#nav button[data-t="${t}"]
 function setSb(st, msg) {
   sbState = st; sbErr = msg || '';
   const c = $('#sbchip');
-  if (c) { c.textContent = { off: '💾 Lokal', ok: '☁️ Tersinkron', sync: '⏳ Sinkron…', err: '⚠️ Offline' }[st]; c.className = 'chip ' + st; }
+  if (c) { c.innerHTML = { off: ic('hdd', 14) + 'Lokal', ok: ic('cloudok', 14) + 'Tersinkron', sync: ic('sync', 14) + 'Sinkron…', err: ic('cloudoff', 14) + 'Offline' }[st]; c.className = 'chip ' + st; }
   const ae = document.activeElement;
   if (tab === 'setting' && !(ae && ae.matches && ae.matches('input'))) render();
 }
@@ -716,7 +833,7 @@ window.addEventListener('online', () => { if (sbOn() && localStorage.getItem(DIR
 function vSetting() {
   const st = { off: 'Belum tersambung. Data hanya tersimpan di browser ini.', ok: 'Tersambung dan tersinkron.', sync: 'Menyinkronkan…', err: 'Gagal: ' + sbErr }[sbState];
   return `
-  <div class="card"><h2>Koneksi Supabase</h2>
+  <div class="split top"><div class="card"><h2>Koneksi Supabase</h2>
     <p style="margin:0 0 12px;font-size:14px" class="${sbState === 'ok' ? 'ok' : sbState === 'err' ? 'bad' : ''}"><b>${esc(st)}</b></p>
     <form onsubmit="saveSb(event)"><div class="grid two" style="gap:10px">
       <div><label>Project URL</label><input name="url" placeholder="https://xxxx.supabase.co" value="${esc(sbCfg.url)}" required></div>
@@ -731,9 +848,9 @@ function vSetting() {
   <div class="card"><h2>Setup database (sekali saja)</h2>
     <ol class="steps"><li>Buat project di supabase.com.</li><li>Buka <b>SQL Editor</b>, tempel SQL di bawah, lalu <b>Run</b>.</li><li>Ambil <b>Project URL</b> dan <b>anon key</b> di Project Settings → API, isi di atas.</li></ol>
     <div class="code">${esc(SQL_SETUP)}</div>
-    <button class="btn alt" onclick="navigator.clipboard.writeText(SQL_SETUP).then(() => toast('SQL disalin'))">Salin SQL</button>
-    <p style="font-size:13px;margin:14px 0 0;color:var(--warn)"><b>Perhatian:</b> aplikasi ini belum memakai login, jadi siapa pun yang memegang URL dan anon key bisa membaca dan mengubah data. Cukup untuk uji coba; tambahkan login sebelum dipakai sungguhan.</p>
-  </div>`;
+    <button class="btn alt" onclick="navigator.clipboard.writeText(SQL_SETUP).then(() => toast('SQL disalin'))">${ic('copy', 16)}Salin SQL</button>
+    <p class="note">${ic('alert', 16)}<span><b>Perhatian:</b> aplikasi ini belum memakai login, jadi siapa pun yang memegang URL dan anon key bisa membaca dan mengubah data. Cukup untuk uji coba; tambahkan login sebelum dipakai sungguhan.</span></p>
+  </div></div>`;
 }
 async function saveSb(e) {
   e.preventDefault(); const f = new FormData(e.target);
